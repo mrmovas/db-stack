@@ -1,22 +1,19 @@
-type CommandDirection = "migrate" | "backup";
-type CommandAction<P extends CommandDirection> = P extends "migrate"
-	? "up" | "upToLatest" | "down"
-	: "create" | "restore";
+import { CommandDirection, CommandAction } from "@/types";
 
-type CommandSuccessResult =
+type CommandSuccessResult<P extends CommandDirection> =
 	| {
 			success: true;
-			direction: "migrate";
-			action: CommandAction<"migrate">;
+			direction: P;
+			action: CommandAction<P>;
 	  }
 	| {
 			success: true;
-			direction: "backup";
-			action: CommandAction<"backup">;
+			direction: P;
+			action: CommandAction<P>;
 	  };
 
 type getCommandResult =
-	| CommandSuccessResult
+	| CommandSuccessResult<CommandDirection>
 	| {
 			success: false;
 			error?: string;
