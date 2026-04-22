@@ -1,23 +1,14 @@
-import { CommandDirection, CommandAction } from "@/types";
+import type { CommandAction, CommandDirection } from "@/types";
 
-type CommandSuccessResult<P extends CommandDirection> =
-	| {
-			success: true;
-			direction: P;
-			action: CommandAction<P>;
-	  }
-	| {
-			success: true;
-			direction: P;
-			action: CommandAction<P>;
-	  };
+type CommandSuccessResult<P extends CommandDirection> = {
+	success: true;
+	direction: P;
+	action: CommandAction<P>;
+};
 
 type getCommandResult =
-	| CommandSuccessResult<CommandDirection>
-	| {
-			success: false;
-			error?: string;
-	  };
+	| { [P in CommandDirection]: CommandSuccessResult<P> }[CommandDirection]
+	| { success: false; error?: string };
 
 export function getCommmand(): getCommandResult {
 	const direction = process.argv[2];
@@ -66,10 +57,12 @@ export function getCommmand(): getCommandResult {
 			};
 		}
 
-		default:
+		default: {
+			void (direction as never);
 			return {
 				success: false,
 				error: "Invalid command. Use `migrate` or `backup`.",
 			};
+		}
 	}
 }
