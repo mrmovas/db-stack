@@ -1,0 +1,33 @@
+{
+    "name": "db-stack",
+    "version": "1.0.0",
+    "description": "Standalone database stack with Docker, Kysely migrations, backup, restore, and cron scheduling.",
+    "main": "dist/src/index.js",
+    "scripts": {
+        "migrate:up": "",
+        "migrate:upToLatest": "",
+        "migrate:down": "",
+        "backup:create": "",
+        "backup:restore": "",
+        "typecheck": "tsc --noEmit",
+        "biome:format": "npx @biomejs/biome check --write ./src",
+        "biome:lint": "npx @biomejs/biome lint --write ./src",
+        "biome:check": "npx @biomejs/biome check ./src",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@biomejs/biome": "2.4.12",
+        "@types/node": "^25.6.0",
+        "@types/pg": "^8.20.0"
+    },
+    "dependencies": {
+        "dotenv": "^17.4.2",
+        "kysely": "^0.28.16",
+        "pg": "^8.20.0",
+        "zod": "^4.3.6"
+    }
+}
