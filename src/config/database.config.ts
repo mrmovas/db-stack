@@ -1,0 +1,39 @@
+import { Kysely, PostgresDialect, sql } from "kysely";
+import { Pool } from "pg";
+import { env } from "@/config/env.config";
+
+// PG POOL
+export const pool = new Pool({
+	host: env.DATABASE_HOST,
+	port: env.DATABASE_PORT,
+	user: env.DATABASE_USER,
+	password: env.DATABASE_PASSWORD,
+	database: env.DATABASE_NAME,
+});
+
+// KYSELY CLIENT (singleton)
+export const db = new Kysely<any>({
+	dialect: new PostgresDialect({ pool }),
+});
+
+// TEST CONNECTION
+export const testConnection = async (): Promise<boolean> => {
+	try {
+		await sql`SELECT 1`.execute(db);
+		console.log("Database connection established");
+		return true;
+	} catch (error) {
+		console.error("Database connection failed", { error });
+		return false;
+	}
+};
+
+// GRACEFUL SHUTDOWN
+export const closeDatabase = async (): Promise<void> => {
+	try {
+		await db.destroy();
+		console.log("Database connections closed");
+	} catch (error) {
+		console.error("Error closing database connections", { error });
+	}
+};
