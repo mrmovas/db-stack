@@ -1,5 +1,7 @@
 import type { CommandAction } from "@/types";
+import { migrator } from "@/config/migrator.config";
 import { migrationInfo, showMigrationHistory } from "@/utils/migrate";
+import { createDatabaseBackup } from "@/utils/pgDump";
 
 export async function migrate(action: CommandAction<"migrate">): Promise<void> {
 	if (action === "history") return await showMigrationHistory();
@@ -17,7 +19,33 @@ export async function migrate(action: CommandAction<"migrate">): Promise<void> {
 		return;
 	}
 
-	// TODO: Create a backup before running migrations
+    /**
+     * Before running any migration (up or down), we create a backup of the database, so if anything goes wrong we can restore it.
+     */
+	await createDatabaseBackup();
 
-	// TODO: Run the migrations based on the action (up, upToLatest, down)
+    /**
+     * Run the migration based on the action.
+     */
+	const { results } = await (async () => {
+		switch (action) {
+			case "up":
+				return await migrator.migrateUp();
+            case "upToLatest":
+                return await migrator.migrateToLatest();
+            case "down":
+                return await migrator.migrateDown();
+			default:
+				throw new Error("Invalid migrate action");
+		}
+	})();
+
+    results?.forEach((it) => {
+        if(it.status === "Success") {
+            if(action === "up") console.log(`✅ migration "${it.migrationName}" applied`);
+            else if(action === "down") console.log(`↩️  migration "${it.migrationName}" rolled back`);
+        } else if (it.status === "Error") {
+            console.error(`❌ failed: "${it.migrationName}"`);
+        }
+    });
 }
