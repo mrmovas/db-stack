@@ -10,7 +10,7 @@ type getCommandResult =
 	| { [P in CommandDirection]: CommandSuccessResult<P> }[CommandDirection]
 	| { success: false; error?: string };
 
-export function getCommmand(): getCommandResult {
+export function getCommand(): getCommandResult {
 	const direction = process.argv[2];
 	const action = process.argv[3];
 
@@ -28,7 +28,7 @@ export function getCommmand(): getCommandResult {
 		}
 
 		case "migrate": {
-			if (action != "up" && action != "upToLatest" && action != "down") {
+			if (action !== "up" && action !== "upToLatest" && action !== "down") {
 				return {
 					success: false,
 					error: "Invalid migrate action. Use `up`, `upToLatest`, or `down`.",
@@ -43,7 +43,7 @@ export function getCommmand(): getCommandResult {
 		}
 
 		case "backup": {
-			if (action != "create" && action != "restore") {
+			if (action !== "create" && action !== "restore") {
 				return {
 					success: false,
 					error: "Invalid backup action. Use `create` or `restore`.",

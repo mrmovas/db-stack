@@ -12,6 +12,7 @@ export const pool = new Pool({
 });
 
 // KYSELY CLIENT (singleton)
+// biome-ignore lint/suspicious/noExplicitAny: It's important to use `any` here, migrations should never depend on the current code of your app because they need to work even when the app changes. Migrations need to be "frozen in time".
 export const db = new Kysely<any>({
 	dialect: new PostgresDialect({ pool }),
 });

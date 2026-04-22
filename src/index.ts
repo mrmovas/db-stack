@@ -1,10 +1,10 @@
 import { backup } from "./commands/backup";
 import { migrate } from "./commands/migrate";
 import { closeDatabase, testConnection } from "./config/database.config";
-import { getCommmand } from "./utils/getCommand";
+import { getCommand } from "./utils/getCommand";
 
 const main = async (): Promise<void> => {
-	const getCommandResult = getCommmand();
+	const getCommandResult = getCommand();
 
 	if (!getCommandResult.success) {
 		if (getCommandResult.error) console.error(getCommandResult.error);
