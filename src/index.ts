@@ -1,4 +1,5 @@
 import { backup } from "./commands/backup";
+import { help } from "./commands/help";
 import { migrate } from "./commands/migrate";
 import { closeDatabase, testConnection } from "./config/database.config";
 import { getCommand } from "./utils/getCommand";
@@ -19,6 +20,7 @@ const main = async (): Promise<void> => {
 
 	const { direction, action } = getCommandResult;
 
+	if (direction === "help") await help();
 	if (direction === "migrate") await migrate(action);
 	else if (direction === "backup") await backup(action);
 

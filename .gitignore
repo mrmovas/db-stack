@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+db-backups/
 
 .env
 package-lock.json

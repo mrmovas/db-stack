@@ -1,9 +1,16 @@
-import type { CommandAction, CommandDirection } from "@/types";
+import type {
+	CommandAction,
+	CommandDirection,
+	CommandOption,
+	CommandValue,
+} from "@/types";
 
 type CommandSuccessResult<P extends CommandDirection> = {
 	success: true;
 	direction: P;
 	action: CommandAction<P>;
+	option: CommandOption<CommandAction<P>>;
+	value: CommandValue<CommandAction<P>>;
 };
 
 type getCommandResult =
@@ -13,17 +20,25 @@ type getCommandResult =
 export function getCommand(): getCommandResult {
 	const direction = process.argv[2];
 	const action = process.argv[3];
+	const option = process.argv[4];
+	const value = process.argv[5];
+
+	if (!direction || typeof direction !== "string") {
+		return {
+			success: false,
+			error:
+				"Command direction is required. Use `migrate`, `backup`, or `help`.",
+		};
+	}
 
 	switch (direction) {
 		case "help": {
-			console.log(
-				"Usage: `tsx src/index.ts <migrate|backup> <action>`",
-				"   Migrate actions: `up`, `upToLatest`, `down`",
-				"   Backup actions: `create`, `restore`",
-			);
 			return {
-				success: false,
-				error: undefined,
+				success: true,
+				direction: "help",
+				action: undefined,
+				option: undefined,
+				value: undefined,
 			};
 		}
 
@@ -37,23 +52,62 @@ export function getCommand(): getCommandResult {
 
 			return {
 				success: true,
-				direction,
-				action,
+				direction: "migrate",
+				action: action,
+				option: undefined,
+				value: undefined,
 			};
 		}
 
 		case "backup": {
-			if (action !== "create" && action !== "restore") {
+			if (action !== "create" && action !== "restore" && action !== "list") {
 				return {
 					success: false,
-					error: "Invalid backup action. Use `create` or `restore`.",
+					error: "Invalid backup action. Use `create`, `restore`, or `list`.",
 				};
+			}
+
+			if (action === "restore") {
+				if (
+					option !== "manual" &&
+					option !== "pre-migration" &&
+					option !== "scheduled"
+				) {
+					return {
+						success: false,
+						error:
+							"Invalid backup option. Use `manual`, `pre-migration`, or `scheduled`.",
+					};
+				}
+
+				if (!value && typeof value !== "string") {
+					return {
+						success: false,
+						error: "Backup file name is required for restore action.",
+					};
+				}
+			}
+
+			if (action === "list") {
+				if (
+					option !== "manual" &&
+					option !== "pre-migration" &&
+					option !== undefined
+				) {
+					return {
+						success: false,
+						error:
+							"Invalid backup option. Use `manual`, `pre-migration`, or no option.",
+					};
+				}
 			}
 
 			return {
 				success: true,
-				direction,
-				action,
+				direction: "backup",
+				action: action,
+				option: option,
+				value: value,
 			};
 		}
 
