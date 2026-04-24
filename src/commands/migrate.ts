@@ -22,7 +22,7 @@ export async function migrateCommand(action: CommandAction<"migrate">): Promise<
 	/**
 	 * Before running any migration (up or down), we create a backup of the database, so if anything goes wrong we can restore it.
 	 */
-	await createDatabaseBackup();
+	await createDatabaseBackup("pre-migration");
 
 	/**
 	 * Run the migration based on the action.
