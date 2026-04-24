@@ -62,8 +62,10 @@ export async function migrationInfo(): Promise<{
  * Executes the migration based on the provided action ("up", "upToLatest", or "down").
  * @param action
  */
-export async function runMigrate(action: Extract<CommandAction<"migrate">, "up" | "upToLatest" | "down">): Promise<void> {
-    const { results } = await (async () => {
+export async function runMigrate(
+	action: Extract<CommandAction<"migrate">, "up" | "upToLatest" | "down">,
+): Promise<void> {
+	const { results } = await (async () => {
 		switch (action) {
 			case "up":
 				return await migrator.migrateUp();

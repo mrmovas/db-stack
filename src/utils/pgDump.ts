@@ -6,7 +6,9 @@ import { env } from "@/config/env.config";
 
 const execAsync = promisify(exec);
 
-export async function createDatabaseBackup(trigger: "manual" | "pre-migration" | "scheduled"): Promise<string> {
+export async function createDatabaseBackup(
+	trigger: "manual" | "pre-migration" | "scheduled",
+): Promise<string> {
 	const backupDir = `./db-backup/${trigger}`;
 	fs.mkdirSync(backupDir, { recursive: true });
 

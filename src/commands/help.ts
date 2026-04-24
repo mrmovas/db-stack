@@ -1,5 +1,6 @@
 export async function helpCommand(): Promise<void> {
-    console.log(`
+	console.log(
+		`
 Usage: tsx src/index.ts <direction> <action> ?[options] ?[value]
 
   Directions:      help, migrate, backup
@@ -9,5 +10,6 @@ Usage: tsx src/index.ts <direction> <action> ?[options] ?[value]
       # If no type flag is provided, it shows both
 
     - tsx src/index.ts backup restore <manual|pre-migration|scheduled> <backup-file-name>
-`.trimStart());
+`.trimStart(),
+	);
 }
