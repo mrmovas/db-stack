@@ -1,4 +1,5 @@
 import { migrator } from "@/config/migrator.config";
+import type { CommandAction } from "@/types";
 
 /**
  * Prints a table of all migrations with their execution status and execution date (if executed).
@@ -55,4 +56,34 @@ export async function migrationInfo(): Promise<{
 			(m) => m.executedAt !== undefined,
 		),
 	};
+}
+
+/**
+ * Executes the migration based on the provided action ("up", "upToLatest", or "down").
+ * @param action
+ */
+export async function runMigrate(action: Extract<CommandAction<"migrate">, "up" | "upToLatest" | "down">): Promise<void> {
+    const { results } = await (async () => {
+		switch (action) {
+			case "up":
+				return await migrator.migrateUp();
+			case "upToLatest":
+				return await migrator.migrateToLatest();
+			case "down":
+				return await migrator.migrateDown();
+			default:
+				throw new Error("Invalid migrate action");
+		}
+	})();
+
+	results?.forEach((it) => {
+		if (it.status === "Success") {
+			if (action === "up")
+				console.log(`✅ migration "${it.migrationName}" applied`);
+			else if (action === "down")
+				console.log(`↩️  migration "${it.migrationName}" rolled back`);
+		} else if (it.status === "Error") {
+			console.error(`❌ failed: "${it.migrationName}"`);
+		}
+	});
 }

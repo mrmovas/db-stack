@@ -1,6 +1,6 @@
-import { backup } from "./commands/backup";
-import { help } from "./commands/help";
-import { migrate } from "./commands/migrate";
+import { backupCommand } from "./commands/backup";
+import { helpCommand } from "./commands/help";
+import { migrateCommand } from "./commands/migrate";
 import { closeDatabase, testConnection } from "./config/database.config";
 import { getCommand } from "./utils/getCommand";
 
@@ -18,11 +18,11 @@ const main = async (): Promise<void> => {
 		process.exit(1);
 	}
 
-	const { direction, action } = getCommandResult;
+	const { direction, action, option, value } = getCommandResult;
 
-	if (direction === "help") await help();
-	if (direction === "migrate") await migrate(action);
-	else if (direction === "backup") await backup(action);
+	if (direction === "help") await helpCommand();
+	if (direction === "migrate") await migrateCommand(action);
+	else if (direction === "backup") await backupCommand(action, option, value);
 
 	closeDatabase();
 };

@@ -1,4 +1,4 @@
-export async function help(): Promise<void> {
+export async function helpCommand(): Promise<void> {
     console.log(`
 Usage: tsx src/index.ts <direction> <action> ?[options] ?[value]
 
