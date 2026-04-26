@@ -17,7 +17,20 @@ services:
       start_period: 10s
     networks:
       - app-net
-
+  
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-net
+    profiles:
+      - tools
+    restart: unless-stopped
+    
   # app:
   #   build:
   #     context: .
