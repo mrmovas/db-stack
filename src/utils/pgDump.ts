@@ -9,14 +9,14 @@ const execAsync = promisify(exec);
 export async function createDatabaseBackup(
 	trigger: "manual" | "pre-migration" | "scheduled",
 ): Promise<string> {
-	const backupDir = `./db-backup/${trigger}`;
+	const backupDir = `./db-backups/${trigger}`;
 	fs.mkdirSync(backupDir, { recursive: true });
 
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-	const filename = `${trigger}-backup-${env.DATABASE_NAME}-${timestamp}.sql`;
+	const filename = `${trigger}-backup-${env.DATABASE_DB}-${timestamp}.sql`;
 	const filepath = path.join(backupDir, filename);
 
-	const command = `pg_dump -h ${env.DATABASE_HOST} -p ${env.DATABASE_PORT} -U ${env.DATABASE_USER} -d ${env.DATABASE_NAME} -f ${filepath}`;
+	const command = `pg_dump -h ${env.DATABASE_HOST} -p ${env.DATABASE_PORT} -U ${env.DATABASE_USER} -d ${env.DATABASE_DB} -f ${filepath}`;
 
 	await execAsync(command, {
 		env: { ...process.env, PGPASSWORD: env.DATABASE_PASSWORD },
