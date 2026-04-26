@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { backupCreate, backupList, backupRestore } from "./commands/backup";
-import { migrateCommand } from "./commands/migrate";
-import { closeDatabase, testConnection } from "./config/database.config";
+import { backupCreate, backupList, backupRestore } from "@/commands/backup";
+import { migrateCommand } from "@/commands/migrate";
+import { closeDatabase, testConnection } from "@/config/database.config";
 
 const withDb = (fn: () => Promise<void>) => async () => {
 	const connected = await testConnection();
