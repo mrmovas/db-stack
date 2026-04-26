@@ -30,4 +30,4 @@ USER appuser
 EXPOSE 4000
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/index.js"]
+CMD ["npm", "start"]
