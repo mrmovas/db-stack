@@ -23,6 +23,7 @@
         "tsx": "^4.21.0"
     },
     "dependencies": {
+        "commander": "^14.0.3",
         "dotenv": "^17.4.2",
         "kysely": "^0.28.16",
         "pg": "^8.20.0",

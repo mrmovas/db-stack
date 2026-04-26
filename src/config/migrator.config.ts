@@ -8,6 +8,6 @@ export const migrator = new Migrator({
 	provider: new FileMigrationProvider({
 		fs,
 		path,
-		migrationFolder: path.join(__dirname, "../migrations"), // folder with your migration files
+		migrationFolder: path.join(__dirname, "../../migrations"), // folder with your migration files
 	}),
 });
