@@ -4,7 +4,7 @@
         "module": "nodenext",
         "lib": ["ES2022"],
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": ".",
         "removeComments": true,
         "strict": true,
         "esModuleInterop": true,
