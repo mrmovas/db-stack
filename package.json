@@ -4,11 +4,8 @@
     "description": "Standalone database stack with Docker, Kysely migrations, backup, restore, and cron scheduling.",
     "main": "dist/src/index.js",
     "scripts": {
-        "migrate:up": "",
-        "migrate:upToLatest": "",
-        "migrate:down": "",
-        "backup:create": "",
-        "backup:restore": "",
+        "build": "tsc && tsc-alias",
+        "start": "node dist/src/index.js",
         "typecheck": "tsc --noEmit",
         "biome:format": "npx @biomejs/biome check --write ./src",
         "biome:lint": "npx @biomejs/biome lint --write ./src",
