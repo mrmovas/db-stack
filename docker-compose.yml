@@ -17,7 +17,7 @@ services:
       start_period: 10s
     networks:
       - app-net
-    
+
   # app:
   #   build:
   #     context: .
@@ -50,6 +50,7 @@ services:
     volumes:
       - ./db-backups/manual:/app/db-backups/manual
       - ./db-backups/pre-migration:/app/db-backups/pre-migration
+      - ./migrations:/app/migrations
     networks:
       - app-net
     profiles:
