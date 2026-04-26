@@ -1,13 +1,17 @@
 import { listBackups, restoreDatabaseBackup } from "@/utils/backup";
 import { createDatabaseBackup } from "@/utils/pgDump";
 
-
 export async function backupCreate(): Promise<void> {
 	await createDatabaseBackup("manual");
 }
 
 export async function backupList(type?: string): Promise<void> {
-	if (type !== undefined && type !== "manual" && type !== "pre-migration" && type !== "scheduled") {
+	if (
+		type !== undefined &&
+		type !== "manual" &&
+		type !== "pre-migration" &&
+		type !== "scheduled"
+	) {
 		console.error(
 			`Invalid type "${type}". Use: manual, pre-migration, scheduled, or omit for both`,
 		);
