@@ -13,6 +13,13 @@ const envSchema = z.object({
 	DATABASE_USER: z.string().nonempty("[ENV] DATABASE_USER is required"),
 	DATABASE_PASSWORD: z.string().nonempty("[ENV] DATABASE_PASSWORD is required"),
 	DATABASE_DB: z.string().nonempty("[ENV] DATABASE_DB is required"),
+
+	SCHEDULED_LOCALE: z.string().nonempty("[ENV] SCHEDULED_LOCALE is required"),
+	SCHEDULED_TIME: z.string().nonempty("[ENV] SCHEDULED_TIME is required"),
+	SCHEDULED_BACKUP_RETENTION_DAYS: z
+		.string()
+		.nonempty("[ENV] SCHEDULED_BACKUP_RETENTION_DAYS is required")
+		.transform(Number),
 });
 
 // VALIDATING ENVIRONMENT VARIABLES

@@ -31,23 +31,21 @@ services:
       - tools
     restart: unless-stopped
     
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.app
-  #     target: production
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     NODE_ENV: production
-  #   volumes:
-  #    - ./db-backups/scheduled:/app/db-backups/scheduled
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   restart: unless-stopped
-  #   networks:
-  #     - app-net
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: production
+    env_file:
+      - .env
+    volumes:
+     - ./db-backups/scheduled:/app/db-backups/scheduled
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-net
 
   cli:
     build:
