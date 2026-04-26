@@ -4,19 +4,56 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: ${POSTGRES_USER?POSTGRES_USER is required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${DATABASE_USER?DATABASE_USER is required}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD is required}
+      POSTGRES_DB: ${DATABASE_DB:?DATABASE_DB is required}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     networks:
       - app-net
+    
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.app
+  #     target: production
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     NODE_ENV: production
+  #   volumes:
+  #    - ./db-backups/scheduled:/app/db-backups/scheduled
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-net
+
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+    volumes:
+      - ./db-backups/manual:/app/db-backups/manual
+      - ./db-backups/pre-migration:/app/db-backups/pre-migration
+    networks:
+      - app-net
+    profiles:
+      - cli  # only starts when explicitly requested
 
 volumes:
   postgres_data:

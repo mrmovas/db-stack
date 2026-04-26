@@ -1,0 +1,18 @@
+FROM node:24-alpine
+
+RUN apk add --no-cache dumb-init postgresql-client
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY tsconfig.json ./
+COPY src/ ./src/
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+    && chown -R appuser:appgroup /app
+USER appuser
+
+ENTRYPOINT ["dumb-init", "--", "npx", "tsx", "src/cli.ts"]
+CMD ["help"]
