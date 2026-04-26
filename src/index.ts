@@ -7,7 +7,9 @@ import { createDatabaseBackup } from "@/utils/pgDump";
 const SCHEDULED_BACKUP_DIR = path.join(__dirname, "../../db-backups/scheduled");
 
 function now(): string {
-	return new Date().toLocaleString(env.SCHEDULED_LOCALE);
+	return new Date().toLocaleString(env.SCHEDULED_LOCALE, {
+		timeZone: env.SCHEDULED_TIMEZONE,
+	});
 }
 
 async function deleteOldBackups(): Promise<void> {

@@ -14,12 +14,10 @@ const envSchema = z.object({
 	DATABASE_PASSWORD: z.string().nonempty("[ENV] DATABASE_PASSWORD is required"),
 	DATABASE_DB: z.string().nonempty("[ENV] DATABASE_DB is required"),
 
-	SCHEDULED_LOCALE: z.string().nonempty("[ENV] SCHEDULED_LOCALE is required"),
-	SCHEDULED_TIME: z.string().nonempty("[ENV] SCHEDULED_TIME is required"),
-	SCHEDULED_BACKUP_RETENTION_DAYS: z
-		.string()
-		.nonempty("[ENV] SCHEDULED_BACKUP_RETENTION_DAYS is required")
-		.transform(Number),
+	SCHEDULED_LOCALE: z.string().default("en-US"),
+	SCHEDULED_TIMEZONE: z.string().default("UTC"),
+	SCHEDULED_TIME: z.string().default("0 0 * * *"), // Default: every day at 12 AM
+	SCHEDULED_BACKUP_RETENTION_DAYS: z.string().default("7").transform(Number),
 });
 
 // VALIDATING ENVIRONMENT VARIABLES
