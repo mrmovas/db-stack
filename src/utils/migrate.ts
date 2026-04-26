@@ -1,5 +1,5 @@
 import { migrator } from "@/config/migrator.config";
-import type { CommandAction } from "@/types";
+import type { migrateActions } from "@/types";
 
 /**
  * Prints a table of all migrations with their execution status and execution date (if executed).
@@ -63,7 +63,7 @@ export async function migrationInfo(): Promise<{
  * @param action
  */
 export async function runMigrate(
-	action: Extract<CommandAction<"migrate">, "up" | "upToLatest" | "down">,
+	action: Exclude<migrateActions, "history">,
 ): Promise<void> {
 	const { results } = await (async () => {
 		switch (action) {

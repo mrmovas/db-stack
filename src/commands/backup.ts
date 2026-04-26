@@ -1,21 +1,27 @@
-import type { CommandAction, CommandOption, CommandValue } from "@/types";
-import { listBackups } from "@/utils/backup";
+import { listBackups, restoreDatabaseBackup } from "@/utils/backup";
 import { createDatabaseBackup } from "@/utils/pgDump";
 
-export async function backupCommand(
-	action: CommandAction<"backup">,
-	option: CommandOption<CommandAction<"backup">>,
-	_value: CommandValue<CommandAction<"backup">>,
-): Promise<void> {
-	if (action === "list") return await listBackups(option);
 
-	if (action === "create") {
-		await createDatabaseBackup("manual");
-		return;
-	}
+export async function backupCreate(): Promise<void> {
+	await createDatabaseBackup("manual");
+}
 
-	if (action === "restore") {
-		console.log("Restore functionality is not implemented yet.");
-		return;
+export async function backupList(type?: string): Promise<void> {
+	if (type !== undefined && type !== "manual" && type !== "pre-migration" && type !== "scheduled") {
+		console.error(
+			`Invalid type "${type}". Use: manual, pre-migration, scheduled, or omit for both`,
+		);
+		process.exit(1);
 	}
+	await listBackups(type);
+}
+
+export async function backupRestore(type: string, file: string): Promise<void> {
+	if (type !== "manual" && type !== "pre-migration" && type !== "scheduled") {
+		console.error(
+			`Invalid type "${type}". Use: manual, pre-migration, or scheduled`,
+		);
+		process.exit(1);
+	}
+	await restoreDatabaseBackup(type, file);
 }

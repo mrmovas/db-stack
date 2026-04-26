@@ -1,4 +1,4 @@
-import type { CommandAction } from "@/types";
+import type { migrateActions } from "@/types";
 import {
 	migrationInfo,
 	runMigrate,
@@ -6,9 +6,7 @@ import {
 } from "@/utils/migrate";
 import { createDatabaseBackup } from "@/utils/pgDump";
 
-export async function migrateCommand(
-	action: CommandAction<"migrate">,
-): Promise<void> {
+export async function migrateCommand(action: migrateActions): Promise<void> {
 	if (action === "history") return await showMigrationHistory();
 
 	const { hasAvailableMigrations, hasExecutedMigrations } =
