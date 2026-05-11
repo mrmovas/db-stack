@@ -1,41 +1,7 @@
-import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { env } from "@/config/env.config";
-
-function runCommand(
-	command: string,
-	args: string[],
-	envVars: NodeJS.ProcessEnv,
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, args, {
-			env: envVars,
-			stdio: ["ignore", "pipe", "pipe"],
-		});
-
-		let stderr = "";
-		child.stderr.on("data", (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		child.on("error", (error) => {
-			reject(error);
-		});
-
-		child.on("close", (code) => {
-			if (code === 0) {
-				resolve();
-				return;
-			}
-			reject(
-				new Error(
-					`${command} failed with exit code ${code}${stderr ? `: ${stderr.trim()}` : ""}`,
-				),
-			);
-		});
-	});
-}
+import { runSystemCommand } from "@/utils/runSystemCommand";
 
 export async function createDatabaseBackup(
 	trigger: "manual" | "pre-migration" | "scheduled",
@@ -59,7 +25,7 @@ export async function createDatabaseBackup(
 		filepath,
 	];
 
-	await runCommand("pg_dump", args, {
+	await runSystemCommand("pg_dump", args, {
 		...process.env,
 		PGPASSWORD: env.DATABASE_PASSWORD,
 	});

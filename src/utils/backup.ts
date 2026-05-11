@@ -1,47 +1,9 @@
-import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "@/config/env.config";
 import type { backupOptions } from "@/types";
 import { backupOptionsArray } from "@/types";
-
-function runPsql(args: string[], pgEnv: NodeJS.ProcessEnv): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const child = spawn("psql", args, {
-			env: pgEnv,
-			stdio: ["ignore", "pipe", "pipe"],
-		});
-
-		let stderr = "";
-		child.stderr.on("data", (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		child.on("error", (error) => {
-			reject(error);
-		});
-
-		child.on("close", (code) => {
-			if (code === 0) {
-				resolve();
-				return;
-			}
-			reject(
-				new Error(
-					`psql failed with exit code ${code}${stderr ? `: ${stderr.trim()}` : ""}`,
-				),
-			);
-		});
-	});
-}
-
-function escapeSqlLiteral(value: string): string {
-	return value.replace(/'/g, "''");
-}
-
-function quoteSqlIdentifier(identifier: string): string {
-	return `"${identifier.replace(/"/g, '""')}"`;
-}
+import { runSystemCommand } from "@/utils/runSystemCommand";
 
 function resolveBackupFilePath(type: backupOptions, filename: string): string {
 	if (path.basename(filename) !== filename) {
@@ -50,7 +12,7 @@ function resolveBackupFilePath(type: backupOptions, filename: string): string {
 		);
 	}
 
-	const typeDir = path.resolve(process.cwd(), "db-backups", type);
+	const typeDir = path.resolve(__dirname, "../../db-backups", type);
 	const filepath = path.resolve(typeDir, filename);
 
 	if (!filepath.startsWith(`${typeDir}${path.sep}`)) {
@@ -126,45 +88,47 @@ export async function restoreDatabaseBackup(
 		"-U",
 		env.DATABASE_USER,
 	];
-	const dbNameLiteral = escapeSqlLiteral(env.DATABASE_DB);
-	const dbNameIdentifier = quoteSqlIdentifier(env.DATABASE_DB);
 
 	console.log(`Dropping database: ${env.DATABASE_DB}`);
-	await runPsql(
+	await runSystemCommand(
+		"psql",
 		[
 			...connectionArgs,
 			"-d",
 			"postgres",
 			"-c",
-			`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${dbNameLiteral}' AND pid <> pg_backend_pid()`,
+			`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${env.DATABASE_DB}' AND pid <> pg_backend_pid()`,
 		],
 		pgEnv,
 	);
-	await runPsql(
+	await runSystemCommand(
+		"psql",
 		[
 			...connectionArgs,
 			"-d",
 			"postgres",
 			"-c",
-			`DROP DATABASE IF EXISTS ${dbNameIdentifier}`,
+			`DROP DATABASE IF EXISTS ${env.DATABASE_DB}`,
 		],
 		pgEnv,
 	);
 
 	console.log(`Recreating database: ${env.DATABASE_DB}`);
-	await runPsql(
+	await runSystemCommand(
+		"psql",
 		[
 			...connectionArgs,
 			"-d",
 			"postgres",
 			"-c",
-			`CREATE DATABASE ${dbNameIdentifier}`,
+			`CREATE DATABASE ${env.DATABASE_DB}`,
 		],
 		pgEnv,
 	);
 
 	console.log(`Restoring database from: ${filepath}`);
-	await runPsql(
+	await runSystemCommand(
+		"psql",
 		[...connectionArgs, "-d", env.DATABASE_DB, "-f", filepath],
 		pgEnv,
 	);
