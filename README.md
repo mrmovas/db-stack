@@ -13,7 +13,7 @@ Copy `.env.example` to `.env` and fill in the required values.
 Start the database and app for auto-backups:
 
 ```bash
-docker compose up postgres -d
+docker compose up postgres app -d
 ```
 
 ---

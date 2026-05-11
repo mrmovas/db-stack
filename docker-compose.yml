@@ -61,6 +61,7 @@ services:
     volumes:
       - ./db-backups/manual:/app/db-backups/manual
       - ./db-backups/pre-migration:/app/db-backups/pre-migration
+      - ./db-backups/scheduled:/app/db-backups/scheduled
       - ./migrations:/app/migrations
     networks:
       - app-net
