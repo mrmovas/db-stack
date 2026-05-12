@@ -9,8 +9,11 @@ const withDb = (fn: () => Promise<void>) => async () => {
 		console.error("Failed to connect to database");
 		process.exit(1);
 	}
-	await fn();
-	await closeDatabase();
+	try {
+		await fn();
+	} finally {
+		await closeDatabase();
+	}
 };
 
 const program = new Command();

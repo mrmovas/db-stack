@@ -12,7 +12,13 @@ const envSchema = z.object({
 		.transform(Number),
 	DATABASE_USER: z.string().nonempty("[ENV] DATABASE_USER is required"),
 	DATABASE_PASSWORD: z.string().nonempty("[ENV] DATABASE_PASSWORD is required"),
-	DATABASE_DB: z.string().nonempty("[ENV] DATABASE_DB is required"),
+	DATABASE_DB: z
+		.string()
+		.nonempty("[ENV] DATABASE_DB is required")
+		.regex(
+			/^[a-zA-Z_][a-zA-Z0-9_]*$/,
+			"[ENV] DATABASE_DB must match /^[a-zA-Z_][a-zA-Z0-9_]*$/",
+		),
 
 	SCHEDULED_LOCALE: z.string().default("en-US"),
 	SCHEDULED_TIMEZONE: z.string().default("UTC"),

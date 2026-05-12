@@ -1,16 +1,30 @@
-import { exec } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { promisify } from "node:util";
 import { env } from "@/config/env.config";
 import type { backupOptions } from "@/types";
 import { backupOptionsArray } from "@/types";
+import { runSystemCommand } from "@/utils/runSystemCommand";
 
-const execAsync = promisify(exec);
+function resolveBackupFilePath(type: backupOptions, filename: string): string {
+	if (path.basename(filename) !== filename) {
+		throw new Error(
+			"Invalid backup filename. Directory separators are not allowed.",
+		);
+	}
+
+	const typeDir = path.resolve(__dirname, "../../db-backups", type);
+	const filepath = path.resolve(typeDir, filename);
+
+	if (!filepath.startsWith(`${typeDir}${path.sep}`)) {
+		throw new Error("Invalid backup file path.");
+	}
+
+	return filepath;
+}
 
 /**
  * Lists backup folders for the specified type(s).
- * If no type is specified, lists both "manual" and "pre-migration" backups.
+ * If no type is specified, lists all backup types.
  * @param option
  */
 export async function listBackups(option?: backupOptions): Promise<void> {
@@ -23,8 +37,6 @@ export async function listBackups(option?: backupOptions): Promise<void> {
 	console.log(`Showing backup folders (limit ${LIMIT}).`);
 
 	for (const type of targets) {
-		if (typeof type !== "string" || !type) continue; // temp fix?
-
 		const typeDir = path.join(backupRoot, type);
 
 		if (!fs.existsSync(typeDir)) {
@@ -60,35 +72,64 @@ export async function restoreDatabaseBackup(
 	type: backupOptions,
 	filename: string,
 ): Promise<void> {
-	const filepath = path.join(`./db-backups/${type}`, filename);
+	const filepath = resolveBackupFilePath(type, filename);
 
 	if (!fs.existsSync(filepath)) {
 		console.error(`Backup file not found: ${filepath}`);
 		process.exit(1);
 	}
 
-	const pgEnv = { env: { ...process.env, PGPASSWORD: env.DATABASE_PASSWORD } };
-	const connectionFlags = `-h ${env.DATABASE_HOST} -p ${env.DATABASE_PORT} -U ${env.DATABASE_USER}`;
+	const pgEnv = { ...process.env, PGPASSWORD: env.DATABASE_PASSWORD };
+	const connectionArgs = [
+		"-h",
+		env.DATABASE_HOST,
+		"-p",
+		String(env.DATABASE_PORT),
+		"-U",
+		env.DATABASE_USER,
+	];
 
 	console.log(`Dropping database: ${env.DATABASE_DB}`);
-	await execAsync(
-		`psql ${connectionFlags} -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${env.DATABASE_DB}' AND pid <> pg_backend_pid()"`,
+	await runSystemCommand(
+		"psql",
+		[
+			...connectionArgs,
+			"-d",
+			"postgres",
+			"-c",
+			`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${env.DATABASE_DB}' AND pid <> pg_backend_pid()`,
+		],
 		pgEnv,
 	);
-	await execAsync(
-		`psql ${connectionFlags} -d postgres -c "DROP DATABASE IF EXISTS ${env.DATABASE_DB}"`,
+	await runSystemCommand(
+		"psql",
+		[
+			...connectionArgs,
+			"-d",
+			"postgres",
+			"-c",
+			`DROP DATABASE IF EXISTS ${env.DATABASE_DB}`,
+		],
 		pgEnv,
 	);
 
 	console.log(`Recreating database: ${env.DATABASE_DB}`);
-	await execAsync(
-		`psql ${connectionFlags} -d postgres -c "CREATE DATABASE ${env.DATABASE_DB}"`,
+	await runSystemCommand(
+		"psql",
+		[
+			...connectionArgs,
+			"-d",
+			"postgres",
+			"-c",
+			`CREATE DATABASE ${env.DATABASE_DB}`,
+		],
 		pgEnv,
 	);
 
 	console.log(`Restoring database from: ${filepath}`);
-	await execAsync(
-		`psql ${connectionFlags} -d ${env.DATABASE_DB} -f ${filepath}`,
+	await runSystemCommand(
+		"psql",
+		[...connectionArgs, "-d", env.DATABASE_DB, "-f", filepath],
 		pgEnv,
 	);
 
