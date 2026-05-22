@@ -4,4 +4,3 @@ build/
 db-backups/
 
 .env
-package-lock.json
