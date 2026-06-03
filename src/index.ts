@@ -12,6 +12,16 @@ function now(): string {
 	});
 }
 
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function formatDuration(seconds: number): string {
+	if (seconds >= 60 * 60) return `${seconds / (60 * 60)} hours`;
+	if (seconds >= 60) return `${seconds / 60} minutes`;
+	return `${seconds} seconds`;
+}
+
 async function deleteOldBackups(): Promise<void> {
 	if (!fs.existsSync(SCHEDULED_BACKUP_DIR)) return;
 
@@ -40,6 +50,25 @@ async function runScheduledBackup(): Promise<void> {
 		console.log(`[${now()}] Scheduled backup complete.`);
 	} catch (err) {
 		console.error(`[${now()}] Scheduled backup failed:`, err);
+		console.log(
+			`[${now()}] Retrying ${env.MAX_ATTEMPTS_ON_BACKUP_FAILURE} more time(s) with ${formatDuration(env.RETRY_DELAY_SECONDS)} between attempts...`,
+		);
+
+		for (
+			let attemptCount = 1;
+			attemptCount <= env.MAX_ATTEMPTS_ON_BACKUP_FAILURE;
+			attemptCount++
+		) {
+			await sleep(env.RETRY_DELAY_SECONDS * 1000);
+			try {
+				await createDatabaseBackup("scheduled");
+				await deleteOldBackups();
+				console.log(`[${now()}] Scheduled backup complete.`);
+				break;
+			} catch (retryErr) {
+				console.error(`[${now()}] Retry ${attemptCount} failed:`, retryErr);
+			}
+		}
 	}
 }
 
@@ -48,6 +77,12 @@ if (!cron.validate(env.SCHEDULED_TIME)) {
 	process.exit(1);
 }
 
+/**
+ * Note, the cron was made in mind to run once a day or less frequently.
+ * If you set it to run more often, be aware that if a backup takes longer than the interval between runs,
+ * it may cause overlapping executions. In such cases, consider implementing a locking mechanism to prevent multiple backups from running simultaneously.
+ * For example in case of a failed backup that keeps retrying, the next scheduled backup will start before the previous one finishes,
+ */
 cron.schedule(env.SCHEDULED_TIME, runScheduledBackup);
 
 console.log(

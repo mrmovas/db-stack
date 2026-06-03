@@ -2,7 +2,7 @@
 
 A self-hosted PostgreSQL stack meant to run externally to your application. Your app connects to it over the network while this stack handles the database itself, migrations, and backups.
 
-The `app` service will run an automated backup every day at 12 AM once enabled.
+The `app` service will run an automated backup every day at 12 AM once enabled. If a backup fails, it will automatically retry up to `MAX_ATTEMPTS_ON_BACKUP_FAILURE` times (default: 3), waiting `RETRY_DELAY_SECONDS` between each attempt (default: 1 hour).
 
 ---
 
