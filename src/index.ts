@@ -82,10 +82,9 @@ if (!cron.validate(env.SCHEDULED_TIME)) {
 }
 
 /**
- * Note, the cron was made in mind to run once a day or less frequently.
- * If you set it to run more often, be aware that if a backup takes longer than the interval between runs,
+ * Note: this cron schedule is intended to run once a day or less frequently.
+ * If you set it to run more often, be aware that if backup retries take longer than the interval between runs,
  * it may cause overlapping executions. In such cases, consider implementing a locking mechanism to prevent multiple backups from running simultaneously.
- * For example in case of a failed backup that keeps retrying, the next scheduled backup will start before the previous one finishes,
  */
 cron.schedule(env.SCHEDULED_TIME, runScheduledBackup);
 
