@@ -34,7 +34,11 @@ const envSchema = z.object({
 				.int()
 				.min(1, "MAX_ATTEMPTS_ON_BACKUP_FAILURE must be at least 1"),
 		),
-	RETRY_DELAY_SECONDS: z.string().default("3600").transform(Number),
+	RETRY_DELAY_SECONDS: z
+		.string()
+		.default("3600")
+		.transform(Number)
+		.pipe(z.number().positive("RETRY_DELAY_SECONDS must be a positive number")),
 });
 
 // VALIDATING ENVIRONMENT VARIABLES
