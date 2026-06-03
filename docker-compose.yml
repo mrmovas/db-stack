@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:17
@@ -19,7 +17,9 @@ services:
       start_period: 10s
     networks:
       - app-net
-  
+    profiles:
+      - hosted  # only starts when using hosted mode (--profile hosted)
+
   adminer:
     image: adminer
     ports:
@@ -27,12 +27,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     networks:
       - app-net
     profiles:
       - tools
     restart: unless-stopped
-    
+
   app:
     build:
       context: .
@@ -45,9 +46,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     restart: unless-stopped
     networks:
       - app-net
+      - shared-db-net
 
   cli:
     build:
@@ -58,14 +61,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     environment:
       NPM_CONFIG_UPDATE_NOTIFIER: "false"
     volumes:
       - ./db-backups/manual:/app/db-backups/manual
       - ./db-backups/pre-migration:/app/db-backups/pre-migration
+      - ./db-backups/scheduled:/app/db-backups/scheduled:ro
       - ./migrations:/app/migrations
     networks:
       - app-net
+      - shared-db-net
     profiles:
       - cli  # only starts when explicitly requested
 
@@ -75,3 +81,5 @@ volumes:
 networks:
   app-net:
     driver: bridge
+  shared-db-net:
+    external: true
