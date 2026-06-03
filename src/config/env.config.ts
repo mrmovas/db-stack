@@ -24,6 +24,21 @@ const envSchema = z.object({
 	SCHEDULED_TIMEZONE: z.string().default("UTC"),
 	SCHEDULED_TIME: z.string().default("0 0 * * *"), // Default: every day at 12 AM
 	SCHEDULED_BACKUP_RETENTION_DAYS: z.string().default("7").transform(Number),
+	MAX_ATTEMPTS_ON_BACKUP_FAILURE: z
+		.string()
+		.default("3")
+		.transform(Number)
+		.pipe(
+			z
+				.number()
+				.int()
+				.min(1, "MAX_ATTEMPTS_ON_BACKUP_FAILURE must be at least 1"),
+		),
+	RETRY_DELAY_SECONDS: z
+		.string()
+		.default("3600")
+		.transform(Number)
+		.pipe(z.number().positive("RETRY_DELAY_SECONDS must be a positive number")),
 });
 
 // VALIDATING ENVIRONMENT VARIABLES
