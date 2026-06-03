@@ -63,7 +63,8 @@ async function runScheduledBackup(): Promise<void> {
 			attemptCount <= env.MAX_ATTEMPTS_ON_BACKUP_FAILURE;
 			attemptCount++
 		) {
-			await sleep(env.RETRY_DELAY_SECONDS * 1000);
+            await sleep(env.RETRY_DELAY_SECONDS * 1000);
+			console.log(`[${now()}] Running scheduled backup...`);
 			try {
 				await createDatabaseBackup("scheduled");
 				await deleteOldBackups();
