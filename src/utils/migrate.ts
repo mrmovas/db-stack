@@ -65,7 +65,7 @@ export async function migrationInfo(): Promise<{
 export async function runMigrate(
 	action: Exclude<migrateActions, "history">,
 ): Promise<void> {
-	const { results } = await (async () => {
+	const { results, error } = await (async () => {
 		switch (action) {
 			case "up":
 				return await migrator.migrateUp();
@@ -85,7 +85,7 @@ export async function runMigrate(
 			else if (action === "down")
 				console.log(`↩️  migration "${it.migrationName}" rolled back`);
 		} else if (it.status === "Error") {
-			console.error(`❌ failed: "${it.migrationName}"`);
+			console.error(`❌ failed: "${it.migrationName}"`, error);
 		}
 	});
 }
