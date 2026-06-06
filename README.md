@@ -7,7 +7,7 @@ Supports two modes:
 - **Hosted** — PostgreSQL runs as a container inside this stack, managed here.
 - **External** — PostgreSQL runs elsewhere (managed service, another server, etc.). This stack connects to it using the credentials in your `.env`.
 
-The `app` service runs an automated backup every day at 12 AM once started.
+The `app` service will run an automated backup every day at 12 AM once enabled. If a backup fails, it will automatically retry up to `MAX_ATTEMPTS_ON_BACKUP_FAILURE` times (default: 3), waiting `RETRY_DELAY_SECONDS` between each attempt (default: 1 hour).
 
 ---
 
