@@ -153,3 +153,5 @@ networks:
 Then set `DATABASE_HOST` to the postgres container name from the other stack.
 
 > If you don't need cross-stack networking, remove the `shared-db-net` entries from `docker-compose.yml` (the network declaration at the bottom and the `- shared-db-net` line under each service) — otherwise Docker Compose will fail on startup.
+
+The `postgres` service is also attached to `shared-db-net`. This is useful in local development when your app is built to connect to an external database, instead of changing your app's config, you can run hosted mode and have your app connect to this postgres container over the shared network, treating it just like an external database. You can remove the `shared-db-net` entry from the `postgres` service if you don't need it.
